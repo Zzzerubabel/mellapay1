@@ -1,15 +1,12 @@
-import React, { useState } from 'react';
+
 import { ContactForm } from '../components/ContactForm';
 import { Phone, Mail, Clock, ChevronLeft } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
-export const Contact = () => {
-  const [isSubmitted, setIsSubmitted] = useState(false);
 
-  const handleSubmit = async (data: any) => {
-    console.log('Form submitted:', data);
-    setIsSubmitted(true);
-  };
+
+export const Contact = () => {
+
 
   return (
     <div className="min-h-screen bg-gray-50 pt-20">
@@ -62,7 +59,7 @@ export const Contact = () => {
           </div>
 
           <div className="bg-white p-8 rounded-xl shadow-sm">
-            <ContactForm onSubmit={handleSubmit} isSubmitted={isSubmitted} />
+            <ContactForm  />
           </div>
         </div>
       </div>

@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import  { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Send, CheckCircle, AlertCircle } from 'lucide-react';
+import {supabase} from "../lib/supabaseClient"
 
 const contactFormSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters'),
@@ -13,18 +14,16 @@ const contactFormSchema = z.object({
 
 type ContactFormData = z.infer<typeof contactFormSchema>;
 
-interface ContactFormProps {
-  onSubmit: (data: ContactFormData) => void;
-  isSubmitted: boolean;
-}
+export const ContactForm = () => {
 
-export const ContactForm = ({ onSubmit, isSubmitted }: ContactFormProps) => {
+
+  
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  
+ const [isSubmitted, setIsSubmitted] = useState(false) 
   const {
     register,
-    handleSubmit,
+    handleSubmit,reset,
     formState: { errors }
   } = useForm<ContactFormData>({
     resolver: zodResolver(contactFormSchema)
@@ -36,32 +35,19 @@ export const ContactForm = ({ onSubmit, isSubmitted }: ContactFormProps) => {
     setIsSubmitting(true);
     setError(null);
 
-    try {
-      const browserInfo = {
-        userAgent: navigator.userAgent,
-        language: navigator.language,
-        platform: navigator.platform,
-      };
 
-      const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/contact-form`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
-        },
-        body: JSON.stringify({ ...data, browserInfo }),
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to submit form');
+     
+      const { error } = await supabase.from('messages').insert([data]);
+      if (error) {
+        setError('Something went wrong!');
+        console.error(error);
+      }else {
+        setIsSubmitting(false);
+        setIsSubmitted(true)
+        reset();
       }
-
-      onSubmit(data);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred');
-    } finally {
-      setIsSubmitting(false);
-    }
+  
+   
   };
 
   if (isSubmitted) {
